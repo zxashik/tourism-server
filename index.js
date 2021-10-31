@@ -25,6 +25,7 @@ async function run() {
 
         const database = client.db('tour');
         const servicesCollection = database.collection('services');
+        const ordersCollection = database.collection('orders');
 
         // GET API
         app.get('/services', async (req, res) => {
@@ -54,12 +55,42 @@ async function run() {
             res.json(result);
         })
 
+        // add to cart
+
+        app.post("/order/create", (req, res) => {
+            console.log(req.body);
+            ordersCollection.insertOne(req.body).then((result) => {
+                res.send(result);
+            })
+        })
+
+        //get my order to my order page
+
+        app.get("/myorders/:userId", async (req, res) => {
+            console.log(req.params.userId);
+
+            const result = await ordersCollection.find({ userId: req.params.userId }).toArray();
+            res.send(result);
+        })
+
+
+
+
         // DELETE API
         app.delete('/services/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await servicesCollection.deleteOne(query);
             res.json(result);
+        })
+
+        // DELETE API order
+        app.delete('/order/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await ordersCollection.deleteOne(query);
+            res.json(result);
+
         })
 
 
